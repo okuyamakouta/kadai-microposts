@@ -1,5 +1,4 @@
 <?php
-
 namespace App;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -45,7 +44,7 @@ class User extends Authenticatable
     }
     public function loadRelationshipCounts()
     {
-        $this->loadCount('microposts','followings','followers');
+        $this->loadCount('microposts','followings','followers','favorites');
     }
     
     /**
@@ -124,4 +123,55 @@ class User extends Authenticatable
         // それらのユーザが所有する投稿に絞り込む
         return Micropost::whereIn('user_id', $userIds);
     }
+    //ユーザが追加したお気に入りの一覧
+    public function favorites()
+    {
+        return $this->belongsToMany(Micropost::class, 'favorites','user_id','micropost_id')->withTimestamps();
+    }
+   
+    public function favorite($micropostId)
+    {
+        //すでにお気に入りに追加しているかの確認
+        $exist = $this->is_favorite($micropostId);
+        //対象が自分自身かどうかの確認
+        $its_me = $this->id == $micropostId;
+        
+        if($exist || $its_me){
+            //すでにお気に入り追加してたら何もしない
+            return false;
+        }else {
+            //お気に入り追加していなかったら追加する
+            $this->favorites()->attach($micropostId);
+            return true;
+        }
+    }
+    public function unfavorite($micropostId)
+    {
+        //すでにお気に入り追加してるかの確認
+        $exist = $this->is_favorite($micropostId);
+        //対象が自分自身かの確認
+        $its_me = $this->id == $micropostId;
+        
+        if($exist && $its_me){
+            //お気に入り追加してたら削除する
+            $this->favorites()->detach($micropostId);
+            return true;
+        }else
+        //お気に入り追加してなかったら何もしない
+            return false;
+    }
+    public function is_favorite($micropostId)
+    {
+        return $this->favorites()->where('micropost_id',$micropostId)->exists();
+    }
+    public function favorite_microposts()
+    {
+        // このユーザがフォロー中のユーザのidを取得して配列にする
+        $micropostIds = $this->favorites()->pluck('users.id')->toArray();
+        // このユーザのidもその配列に追加
+        $micropostIds[] = $this->id;
+        // それらのユーザが所有する投稿に絞り込む
+        return Micropost::whereIn('user_id', $micropostIds);
+    }
 }
+
