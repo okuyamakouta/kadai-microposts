@@ -133,10 +133,9 @@ class User extends Authenticatable
     {
         //すでにお気に入りに追加しているかの確認
         $exist = $this->is_favorite($micropostId);
-        //対象が自分自身かどうかの確認
-        $its_me = $this->id == $micropostId;
         
-        if($exist || $its_me){
+        
+        if($exist){
             //すでにお気に入り追加してたら何もしない
             return false;
         }else {
@@ -149,10 +148,8 @@ class User extends Authenticatable
     {
         //すでにお気に入り追加してるかの確認
         $exist = $this->is_favorite($micropostId);
-        //対象が自分自身かの確認
-        $its_me = $this->id == $micropostId;
         
-        if($exist && !$its_me){
+        if($exist ){
             //お気に入り追加してたら削除する
             $this->favorites()->detach($micropostId);
             return true;
@@ -164,14 +161,6 @@ class User extends Authenticatable
     {
         return $this->favorites()->where('micropost_id',$micropostId)->exists();
     }
-    public function favorite_microposts()
-    {
-        // このユーザがフォロー中のユーザのidを取得して配列にする
-        $micropostIds = $this->favorites()->pluck('microposts.id')->toArray();
-        // このユーザのidもその配列に追加
-        $micropostIds[] = $this->id;
-        // それらのユーザが所有する投稿に絞り込む
-        return Micropost::whereIn('micropost_id', $micropostIds);
-    }
+   
 }
 
