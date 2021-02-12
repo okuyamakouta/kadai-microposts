@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class FavoritesController extends Controller
 {
     //お気に入り登録するアクション
-    public function store(Request $request,$id){
+    public function store($id){
         
         //認証済みユーザが投稿をお気に入り登録する
         \Auth::user()->favorite($id);

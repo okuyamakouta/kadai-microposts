@@ -24,7 +24,7 @@
     <li class="nav-item">
         <a href="{{ route('users.favorites', ['id' => $user->id]) }}" class="nav-link {{ Request::routeIs('users.favorites') ? 'active' : '' }}">
             Favorites
-            <sapn class="badge badge-secondary">{{ $user->microposts_count }}</sapn>
+            <sapn class="badge badge-secondary">{{ $user->favorites_count }}</sapn>
         </a>
     </li>
 </ul>

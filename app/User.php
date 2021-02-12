@@ -62,7 +62,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
     }
-    
+
      public function follow($userId)
     {
         // すでにフォローしているかの確認
@@ -123,7 +123,7 @@ class User extends Authenticatable
         // それらのユーザが所有する投稿に絞り込む
         return Micropost::whereIn('user_id', $userIds);
     }
-    //ユーザが追加したお気に入りの一覧
+        //ユーザが追加したお気に入りの一覧
     public function favorites()
     {
         return $this->belongsToMany(Micropost::class, 'favorites','user_id','micropost_id')->withTimestamps();
@@ -152,7 +152,7 @@ class User extends Authenticatable
         //対象が自分自身かの確認
         $its_me = $this->id == $micropostId;
         
-        if($exist && $its_me){
+        if($exist && !$its_me){
             //お気に入り追加してたら削除する
             $this->favorites()->detach($micropostId);
             return true;
@@ -167,11 +167,11 @@ class User extends Authenticatable
     public function favorite_microposts()
     {
         // このユーザがフォロー中のユーザのidを取得して配列にする
-        $micropostIds = $this->favorites()->pluck('users.id')->toArray();
+        $micropostIds = $this->favorites()->pluck('microposts.id')->toArray();
         // このユーザのidもその配列に追加
         $micropostIds[] = $this->id;
         // それらのユーザが所有する投稿に絞り込む
-        return Micropost::whereIn('user_id', $micropostIds);
+        return Micropost::whereIn('micropost_id', $micropostIds);
     }
 }
 
